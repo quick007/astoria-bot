@@ -1,0 +1,8 @@
+{
+	"imports": {
+		"harmony": "./imports/harmony.ts",
+		"sqlite": "./imports/sqlite.ts",
+		"env": "./imports/env.ts",
+		"mongo": "./imports/mongo.ts"
+	}
+}
