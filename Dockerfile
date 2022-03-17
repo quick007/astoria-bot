@@ -1,7 +1,7 @@
 
 FROM denoland/deno:1.16.2
 
-WORKDIR /app
+WORKDIR /
 
 USER deno
 
