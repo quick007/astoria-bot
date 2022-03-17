@@ -1,0 +1,1 @@
+deno run --allow-read --allow-net --allow-env --allow-run --import-map=imports.json  mod.ts 
