@@ -1,1 +1,1 @@
-export * from 'https://code.harmony.rocks/59957f049f6201eac5a2b0d61c3980f47aff7441';
+export * from ' https://deno.land/x/harmony@v2.6.0/mod.ts';

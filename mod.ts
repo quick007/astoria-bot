@@ -11,13 +11,14 @@ import "env";
 import { commands } from "./objects/cmds.ts";
 import * as db from "./lib/mongo.ts";
 import { sentBy } from "./lib/embed.ts";
-import { Store } from "./objects/store.ts"
+import { timeToUTCMidnight } from "./lib/misc.ts"
 
 class EcoBot extends Client {
   @event()
   async ready() {
     await console.log("Ready!");
-    this.interactions.commands.bulkEdit(commands, "916006382594064385")
+    this.interactions.commands
+      .bulkEdit(commands, "610564824807636993")
       .then(() => console.log("Commands created!"));
   }
 
@@ -25,11 +26,13 @@ class EcoBot extends Client {
   async ping(d: ApplicationCommandInteraction): Promise<void> {
     const desc: string = d.option<string>("channel") || "";
     await d.reply({
-      ephemeral: true,
+      //ephemeral: true,
       embeds: [
         new Embed({
           title: "Pong 🏓",
-          description: "Sent to " + desc +
+          description:
+            "Sent to " +
+            desc +
             " (not actually cause I figured this would be abused)",
         }).setColor("RED"),
       ],
@@ -37,23 +40,77 @@ class EcoBot extends Client {
   }
 
   @slash()
-  async balance(d: ApplicationCommandInteraction): Promise<void> {
+  async points(d: ApplicationCommandInteraction): Promise<void> {
     const user = d.option<InteractionUser>("user") || undefined; //User from second part of the cmd
-    const money =
-      ((user != undefined)
+    const points =
+      user != undefined
         ? (await db.findUser(user.id)).bal
-        : (await db.findUser(d.user.id)).bal);
+        : (await db.findUser(d.user.id)).bal;
     await d.reply({
-      ephemeral: true,
+      //ephemeral: true,
       embeds: [
         new Embed({
-          title: "Balance 🤑",
-          description: ((user == undefined
-            ? "You have"
-            : (user.mention + " has")) + " $" + money + "."),
-        }).setColor("lime"),
+          title: "Points 🔢",
+          description:
+            (user == undefined ? "You have" : user.mention + " has ") +
+            
+            points +
+            ".",
+        }).setColor("gold"),
       ],
     });
+  }
+
+  @slash()
+  async daily(d: ApplicationCommandInteraction): Promise<void> {
+    const daily = await db.doDaily(d.member!.id, false);
+    //console.log(await d.member!.roles.get("955596614288937000"))
+    if (daily.failed == true) {
+      
+      await d.reply({
+        //ephemeral: true,
+        embeds: [
+          new Embed({
+            title: "You can't do this yet!",
+            description:
+              "To keep points fair for everyone, we allow people to add to their streaks at midnight UTC.",
+            fields: [
+              {
+                inline: true,
+                name: "Time until next claim:",
+                value: timeToUTCMidnight().padStart(5),
+              },
+            ],
+            ...sentBy(d),
+          }).setColor("red"),
+        ],
+      });
+    } else {
+      await d.reply({
+        //ephemeral: true,
+        embeds: [
+          new Embed({
+            title: "Daily Reward Recived!",
+            fields: [
+              
+              {
+                name: "Points",
+                value: daily.rewards![0]
+              },
+              daily.rewards ?
+              {
+                name: "Other",
+                value: daily.rewards?.slice(1).join()
+              } : 
+              {
+                name: "Other",
+                value: "No other rewards 😭. Active rank gets extra rewards!"
+              }
+            ]
+          }).setColor("gold")
+        ],
+      });
+    }
   }
 
   @slash()
@@ -63,16 +120,14 @@ class EcoBot extends Client {
     if (d.member && d.member.permissions.has("MANAGE_GUILD")) {
       switch (d.subCommand) {
         case "setbal":
-          if (
-            amount < 1000000000 && db.changeBal(amount, user.id, "set")
-          ) {
+          if (amount < 1000000000 && db.changeBal(amount, user.id, "set")) {
             await d.reply({
               //ephemeral: true,
               embeds: [
                 new Embed({
                   title: "Balance Updated",
-                  description: "Set " + user.mention + "'s balance to $" +
-                    amount + ".",
+                  description:
+                    "Set " + user.mention + "'s balance to $" + amount + ".",
                   ...sentBy(d),
                 }).setColor("lime"),
               ],
@@ -91,16 +146,18 @@ class EcoBot extends Client {
           break;
         case "addbal":
           if (
-            d.member && d.member.permissions.has("MANAGE_GUILD") &&
-            amount < 1000000000 && db.changeBal(amount, user.id, "add")
+            d.member &&
+            d.member.permissions.has("MANAGE_GUILD") &&
+            amount < 1000000000 &&
+            db.changeBal(amount, user.id, "add")
           ) {
             await d.reply({
               //ephemeral: true,
               embeds: [
                 new Embed({
                   title: "Balance Updated",
-                  description: "Added $" + amount + " to " + user.mention +
-                    "'s balance.",
+                  description:
+                    "Added $" + amount + " to " + user.mention + "'s balance.",
                 }).setColor("lime"),
               ],
             });
@@ -118,16 +175,18 @@ class EcoBot extends Client {
           break;
         case "subtractbal":
           if (
-            d.member && d.member.permissions.has("MANAGE_GUILD") &&
-            amount < 1000000000 && db.changeBal(amount, user.id, "subtract")
+            d.member &&
+            d.member.permissions.has("MANAGE_GUILD") &&
+            amount < 1000000000 &&
+            db.changeBal(amount, user.id, "subtract")
           ) {
             await d.reply({
               //ephemeral: true,
               embeds: [
                 new Embed({
                   title: "Balance Updated",
-                  description: "Set " + user.mention + "'s balance to $" +
-                    amount + ".",
+                  description:
+                    "Set " + user.mention + "'s balance to $" + amount + ".",
                 }).setColor("lime"),
               ],
             });
@@ -155,57 +214,6 @@ class EcoBot extends Client {
       });
     }
   }
-
-	@slash()
-	async shop(d: ApplicationCommandInteraction): Promise<void> {
-    const fields = [];
-    
-    await d.reply({
-      embeds: [
-        new Embed({
-
-        })
-      ]
-    })
-    
-	}
-
-  @slash()
-  async inventory(d: ApplicationCommandInteraction): Promise<void> {
-    const user = await db.findUser(d.user.id);
-    if (user.inventory.length == 0) {
-      d.reply({
-        ephemeral: true,
-        embeds: [
-          new Embed({
-            title: "Inventory empty 😭",
-            description: "Your inventory in empty"
-          }).setColor("red")
-        ]
-      })
-    } else {
-      const fields: {name: string, value: string, inline?: boolean}[] = [];
-      user.inventory.map((elm) => {
-        const name = elm.split(":")[0];
-        const value = elm.split(":")[1];
-        fields.push({
-          inline: false,
-          name: name,
-          value: value
-        })
-      })
-      d.reply({
-        ephemeral: true,
-        embeds: [
-          new Embed({
-            title: "Inventory 📚",
-            fields: fields
-          })
-        ]
-        
-      })
-    }
-  }
 }
 
 const bot = new EcoBot();
@@ -216,7 +224,7 @@ const bot = new EcoBot();
 
 bot.interactions.on("interactionError", console.error);
 
-bot.setPresence({ type: "LISTENING", name: " with /help" });
+bot.setPresence({ type: "CUSTOM_STATUS", name: "Listening to /help (jk)" });
 
 // Proceed with connecting to Discord (login)
 bot.connect(Deno.env.get("TOKEN"), [GatewayIntents.GUILD_MEMBERS]);

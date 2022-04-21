@@ -15,22 +15,22 @@ export const commands: SlashCommandPartial[] = [
 	},
 	{
 		name: "admin",
-		description: "See/change money stuff",
+		description: "See/change points",
 		options: [
 			{
 				name: "setbal",
-				description: "Set the value of the target user's balance",
+				description: "Set the value of the target user's points",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
 					{
 						name: "amount",
-						description: "Amount of money you want to add",
+						description: "Amount of points you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -38,18 +38,18 @@ export const commands: SlashCommandPartial[] = [
 			},
 			{
 				name: "addbal",
-				description: "Add money from the target user's balance",
+				description: "Add money from the target user's points",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
 					{
 						name: "amount",
-						description: "Amount of money you want to add",
+						description: "Amount of points you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -57,12 +57,12 @@ export const commands: SlashCommandPartial[] = [
 			},
 			{
 				name: "subtractbal",
-				description: "Subtract money from the target user's balance",
+				description: "Subtract money from the target user's points",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
@@ -76,23 +76,18 @@ export const commands: SlashCommandPartial[] = [
 		]
 	},
 	{
-		name: "balance",
-		description: "Get the balance of another user",
+		name: "points",
+		description: "Get the points of another user",
 		options: [
 			{
 				name: "user",
-				description: "User you want to get the balance of",
+				description: "User you want to get the points of",
 				type: SlashCommandOptionType.USER
 			}
 		]
 	},
 	{
-		name: "shop",
-		description: "Shop for items on the Astoria shop",
-		options: []
-	},
-	{
-		name: "inventory",
-		description: "View your inventory"
+		name: "daily",
+		description: "Get your daily reward! DOUBLE points with Active rank!"
 	}
 ]
