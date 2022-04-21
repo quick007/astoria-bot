@@ -55,7 +55,7 @@ class EcoBot extends Client {
             (user == undefined ? "You have" : user.mention + " has ") +
             points +
             ".",
-        }).setColor("gold"),
+        }).setColor("#E7D27C"),
       ],
     });
   }
@@ -81,7 +81,7 @@ class EcoBot extends Client {
               value: profile.inventory.join(", "),
             },
           ],
-        }),
+        }).setColor("#E7D27C"),
       ],
     });
   }
@@ -106,7 +106,7 @@ class EcoBot extends Client {
               },
             ],
             ...sentBy(d),
-          }).setColor("red"),
+          }).setColor("#FF6961"),
         ],
       });
     } else {
@@ -131,7 +131,7 @@ class EcoBot extends Client {
                       "No other rewards 😭. Active rank gets extra rewards!",
                   },
             ],
-          }).setColor("gold"),
+          }).setColor("#77DD77"),
         ],
       });
     }
@@ -153,7 +153,7 @@ class EcoBot extends Client {
                   description:
                     "Set " + user.mention + "'s balance to $" + amount + ".",
                   ...sentBy(d),
-                }).setColor("lime"),
+                }).setColor("#77DD77"),
               ],
             });
           } else {
@@ -163,7 +163,7 @@ class EcoBot extends Client {
                 new Embed({
                   title: "Error",
                   description: "An unknown error occurred (too much money?)",
-                }).setColor("red"),
+                }).setColor("#FF6961"),
               ],
             });
           }
@@ -182,7 +182,7 @@ class EcoBot extends Client {
                   title: "Balance Updated",
                   description:
                     "Added $" + amount + " to " + user.mention + "'s balance.",
-                }).setColor("lime"),
+                }).setColor("#77DD77"),
               ],
             });
           } else {
@@ -192,7 +192,7 @@ class EcoBot extends Client {
                 new Embed({
                   title: "Error",
                   description: "An unknown error occurred (too much money?)",
-                }).setColor("red"),
+                }).setColor("#FF6961"),
               ],
             });
           }
@@ -211,7 +211,7 @@ class EcoBot extends Client {
                   title: "Balance Updated",
                   description:
                     "Set " + user.mention + "'s balance to $" + amount + ".",
-                }).setColor("lime"),
+                }).setColor("#77DD77"),
               ],
             });
           } else {
@@ -221,7 +221,7 @@ class EcoBot extends Client {
                 new Embed({
                   title: "Error",
                   description: "An unknown error occurred (too much money?)",
-                }).setColor("red"),
+                }).setColor("#FF6961"),
               ],
             });
           }
@@ -233,7 +233,7 @@ class EcoBot extends Client {
           new Embed({
             title: "Error",
             description: "You need the manage server permission to do this.",
-          }).setColor("red"),
+          }).setColor("#FF6961"),
         ],
       });
     }
