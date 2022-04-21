@@ -89,5 +89,16 @@ export const commands: SlashCommandPartial[] = [
 	{
 		name: "daily",
 		description: "Get your daily reward! DOUBLE points with Active rank!"
+	},
+	{
+		name: "profile",
+		description: "View your inventory and points", 
+		options: [
+			{
+				name: "user",
+				description: "Target user",
+				type: SlashCommandOptionType.USER
+			}
+		]
 	}
 ]

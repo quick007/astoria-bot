@@ -11,7 +11,7 @@ import "env";
 import { commands } from "./objects/cmds.ts";
 import * as db from "./lib/mongo.ts";
 import { sentBy } from "./lib/embed.ts";
-import { timeToUTCMidnight } from "./lib/misc.ts"
+import { timeToUTCMidnight } from "./lib/misc.ts";
 
 class EcoBot extends Client {
   @event()
@@ -53,10 +53,35 @@ class EcoBot extends Client {
           title: "Points 🔢",
           description:
             (user == undefined ? "You have" : user.mention + " has ") +
-            
             points +
             ".",
         }).setColor("gold"),
+      ],
+    });
+  }
+
+  @slash()
+  async profile(d: ApplicationCommandInteraction): Promise<void> {
+    const target = d.option<InteractionUser>("user") || undefined;
+    const profile =
+      target == undefined
+        ? await db.findUser(d.user.id)
+        : await db.findUser(target.id);
+    await d.reply({
+      embeds: [
+        new Embed({
+          title: `${target == undefined ? "Your" : target.mention + "'s"} Profile`,
+          fields: [
+            {
+              name: "Points",
+              value: profile.bal.toString(),
+            },
+            {
+              name: "Inventory",
+              value: profile.inventory.join(", "),
+            },
+          ],
+        }),
       ],
     });
   }
@@ -66,7 +91,6 @@ class EcoBot extends Client {
     const daily = await db.doDaily(d.member!.id, false);
     //console.log(await d.member!.roles.get("955596614288937000"))
     if (daily.failed == true) {
-      
       await d.reply({
         //ephemeral: true,
         embeds: [
@@ -92,22 +116,22 @@ class EcoBot extends Client {
           new Embed({
             title: "Daily Reward Recived!",
             fields: [
-              
               {
                 name: "Points",
-                value: daily.rewards![0]
+                value: daily.rewards![0],
               },
-              daily.rewards ?
-              {
-                name: "Other",
-                value: daily.rewards?.slice(1).join()
-              } : 
-              {
-                name: "Other",
-                value: "No other rewards 😭. Active rank gets extra rewards!"
-              }
-            ]
-          }).setColor("gold")
+              daily.rewards
+                ? {
+                    name: "Other",
+                    value: daily.rewards?.slice(1).join(", "),
+                  }
+                : {
+                    name: "Other",
+                    value:
+                      "No other rewards 😭. Active rank gets extra rewards!",
+                  },
+            ],
+          }).setColor("gold"),
         ],
       });
     }

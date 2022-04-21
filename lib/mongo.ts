@@ -33,7 +33,7 @@ function newUser(discordID: string, bal: number): void {
 /**
  * Gets the balance of a user
  * @param discordID The discord id of the user you want to get the balance of
- * @returns The balance & inventory of the user in a JSON object
+ * @returns The points & inventory of the user in a JSON object
  */
 export async function findUser(
   discordID: string
