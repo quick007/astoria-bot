@@ -100,5 +100,9 @@ export const commands: SlashCommandPartial[] = [
 				type: SlashCommandOptionType.USER
 			}
 		]
+	},
+	{
+		name: "open",
+		description: "Open a card or card pack"
 	}
 ]

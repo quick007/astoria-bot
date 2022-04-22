@@ -12,6 +12,7 @@ interface UserSchema {
   _id: Bson.ObjectId;
   discordID: string;
   bal: number;
+  cards: number[];
   inventory: string[];
   dateDrawn: number;
   streak: number;
@@ -24,40 +25,44 @@ function newUser(discordID: string, bal: number): void {
   users.insertOne({
     discordID: discordID,
     bal: bal,
-    inventory: [],
-    dateDrawn: new Date().getUTCDate(),
+    cards: [],
+    dateDrawn: new Date().getUTCDate() - 1,
     streak: 0,
+    inventory: []
   });
 }
 
 /**
  * Gets the balance of a user
  * @param discordID The discord id of the user you want to get the balance of
- * @returns The points & inventory of the user in a JSON object
+ * @returns The points & cards of the user in a JSON object
  */
 export async function findUser(
   discordID: string
 ): Promise<{
   bal: number;
-  inventory: string[];
+  cards: number[];
   dateDrawn?: number;
   streak: number;
+  inventory: string[]
 }> {
   const user = await users.findOne({ discordID: discordID });
   if (user != undefined) {
     return {
       bal: user.bal,
-      inventory: user.inventory,
+      cards: user.cards,
       dateDrawn: user.dateDrawn,
       streak: user.streak,
+      inventory: user.inventory
     };
   } else {
     newUser(discordID, 0);
     return {
       bal: 0,
-      inventory: [],
+      cards: [],
       dateDrawn: undefined,
       streak: 0,
+      inventory: []
     };
   }
 }
@@ -108,7 +113,7 @@ export async function findUser(
 export async function doDaily(
   discordID: string,
   active: boolean
-): Promise<{ rewards?: string[]; days?: number; failed: boolean }> {
+): Promise<{ rewards?: number[]; days?: number; points?: number; failed: boolean }> {
   const user = await findUser(discordID);
   if (user.dateDrawn == new Date().getUTCDate()) {
     return ({
@@ -124,12 +129,13 @@ export async function doDaily(
         streak: user.streak + 1,
         dateDrawn: new Date().getUTCDate(),
         bal: user.bal + (r.points * multiplier),
-        inventory: user.inventory.concat(r.other),
+        cards: user.cards.concat(r.cards == undefined ? [] : r.cards),
       },
     }
   );
   return {
-    rewards: [`Points: ${r.points * multiplier}`].concat(r.other),
+    points: r.points * multiplier,
+    rewards: r.cards,
     days: 0,
     failed: false,
   };

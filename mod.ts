@@ -1,17 +1,23 @@
 import {
   ApplicationCommandInteraction,
+  ButtonStyle,
   Client,
   Embed,
   event,
   GatewayIntents,
+  Interaction,
   InteractionUser,
+  isMessageComponentInteraction,
+  MessageComponentType,
   slash,
+  MessageComponentData,
+  EmbedField
 } from "harmony";
 import "env";
 import { commands } from "./objects/cmds.ts";
 import * as db from "./lib/mongo.ts";
 import { sentBy } from "./lib/embed.ts";
-import { timeToUTCMidnight } from "./lib/misc.ts";
+import { timeToUTCMidnight, cardArrayToWords, cardsToWords } from "./lib/misc.ts";
 
 class EcoBot extends Client {
   @event()
@@ -20,6 +26,41 @@ class EcoBot extends Client {
     this.interactions.commands
       .bulkEdit(commands, "610564824807636993")
       .then(() => console.log("Commands created!"));
+  }
+
+  @event()
+  async interactionCreate(d: Interaction) {
+    if (!isMessageComponentInteraction(d)) return;
+    //if (d.guild == undefined || d.channel == undefined) return;
+		//if (d.message.author.id != this.client.user!.id) return;
+    
+        await d.reply({
+          embeds: [
+            new Embed({
+              title: "Opening " + cardsToWords(parseInt(d.customID.toLowerCase()))  + "..."
+            }),
+            new Embed({
+              image: {
+                url: "https://tenor.com/view/whats-in-the-box-box-wondering-unpack-open-gif-16055318"
+              }
+            }).setAuthor("Give it a second!"),
+          ]
+        })
+
+        setTimeout(() => {
+          d.editResponse({
+            embeds: [
+              new Embed({
+                title: "Opened Card!"
+              }),
+              new Embed({
+                title: "Here's what you got:",
+                description: "100000P\n One Raffle Entry"
+              }),
+            ]
+          })
+        }, 2000)
+    
   }
 
   @slash()
@@ -52,7 +93,7 @@ class EcoBot extends Client {
         new Embed({
           title: "Points 🔢",
           description:
-            (user == undefined ? "You have" : user.mention + " has ") +
+            (user == undefined ? "You have " : user.mention + " has ") +
             points +
             ".",
         }).setColor("#E7D27C"),
@@ -70,15 +111,27 @@ class EcoBot extends Client {
     await d.reply({
       embeds: [
         new Embed({
-          title: `${target == undefined ? "Your" : target.mention + "'s"} Profile`,
+          title: `${
+            target == undefined ? "Your" : target.username + "'s"
+          } Profile`,
           fields: [
             {
               name: "Points",
               value: profile.bal.toString(),
             },
             {
+              name: "Deck",
+              value:
+                profile.cards.join(", ") == ""
+                  ? "Your deck is empty"
+                  : cardArrayToWords(profile.cards).join(", "),
+            },
+            {
               name: "Inventory",
-              value: profile.inventory.join(", "),
+              value:
+                profile.inventory.join(", ") == ""
+                  ? "Your inventory is empty"
+                  : profile.inventory.join(", "),
             },
           ],
         }).setColor("#E7D27C"),
@@ -118,23 +171,72 @@ class EcoBot extends Client {
             fields: [
               {
                 name: "Points",
-                value: daily.rewards![0],
+                value: daily.points!.toString(),
               },
-              daily.rewards
+              daily.rewards && daily.rewards.length != 0
                 ? {
                     name: "Other",
-                    value: daily.rewards?.slice(1).join(", "),
+                    value: cardArrayToWords(daily.rewards).join(", "),
                   }
                 : {
                     name: "Other",
                     value:
-                      "No other rewards 😭. Active rank gets extra rewards!",
+                      "No other rewards 😭. Active rank gets extra rewards! Learn about active rank in #channel.",
                   },
             ],
           }).setColor("#77DD77"),
         ],
       });
     }
+  }
+
+  @slash()
+  async open(d: ApplicationCommandInteraction): Promise<void> {
+    const profile = await db.findUser(d.user.id);
+    if (profile.cards.length == 0) {
+      await d.reply({
+        embeds: [
+          new Embed({
+            title: "Your deck is empty 😭",
+            description: "You can obtain cards via `/daily`.",
+          }),
+        ],
+      });
+      return;
+    }
+    const crds: MessageComponentData[] = [];
+    profile.cards.forEach((v) => {
+      const name = cardsToWords(v)
+      let output: MessageComponentData = {
+        label: name,
+        style: ((v == 0 || v == 5) ? 2 : (v == 1 || v == 6) ? 1 : (v == 2 || v == 7) ? 3 : (v == 3 || v == 8) ? 4 : (v == 4 || v == 9) ? 1 : 2),
+        type: MessageComponentType.BUTTON,
+        customID: v.toString()
+      }
+      crds.push(output)
+      // const inArr = crds.indexOf(output)
+      // if (inArr == -1) {
+      //   crds.push(output)
+      // } else {
+      //   const end = parseInt(crds[inArr].label!)
+      // }
+    })
+    await d.reply({
+      embeds: [
+        new Embed({
+          title: "Open Cards",
+          description: "Select a card from the menu below to open it"
+        }),
+      ],
+      components: [
+        {
+          type: MessageComponentType.ACTION_ROW,
+          components: [
+            ...crds
+          ],
+        },
+      ],
+    });
   }
 
   @slash()
