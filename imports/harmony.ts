@@ -1,1 +1,1 @@
-export * from 'https://code.harmony.rocks/59957f049f6201eac5a2b0d61c3980f47aff7441';
+export * from 'https://raw.githubusercontent.com/harmonyland/harmony/5d3cf6dff35ed56df91ef55a084be0508f23b309/mod.ts';

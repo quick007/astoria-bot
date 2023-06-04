@@ -15,7 +15,7 @@ export const commands: SlashCommandPartial[] = [
 	},
 	{
 		name: "admin",
-		description: "See/change money stuff",
+		description: "See/change balance",
 		options: [
 			{
 				name: "setbal",
@@ -24,13 +24,13 @@ export const commands: SlashCommandPartial[] = [
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
 					{
 						name: "amount",
-						description: "Amount of money you want to add",
+						description: "Amount of balance you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -43,13 +43,13 @@ export const commands: SlashCommandPartial[] = [
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
 					{
 						name: "amount",
-						description: "Amount of money you want to add",
+						description: "Amount of balance you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -62,7 +62,7 @@ export const commands: SlashCommandPartial[] = [
 				options: [
 					{
 						name: "user",
-						description: "User this command effects",
+						description: "User this command affects",
 						type: SlashCommandOptionType.USER,
 						required: true
 					},
@@ -87,12 +87,22 @@ export const commands: SlashCommandPartial[] = [
 		]
 	},
 	{
-		name: "shop",
-		description: "Shop for items on the Astoria shop",
-		options: []
+		name: "daily",
+		description: "Get your daily reward! DOUBLE balance with Active rank!"
 	},
 	{
-		name: "inventory",
-		description: "View your inventory"
+		name: "profile",
+		description: "View your inventory and balance", 
+		options: [
+			{
+				name: "user",
+				description: "Target user",
+				type: SlashCommandOptionType.USER
+			}
+		]
+	},
+	{
+		name: "open",
+		description: "Open a card or card pack"
 	}
 ]

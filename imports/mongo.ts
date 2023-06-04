@@ -1,1 +1,1 @@
-export * from "https://deno.land/x/mongo@v0.29.2/mod.ts"
+export * from "https://deno.land/x/atlas_sdk@v1.1.1/mod.ts";

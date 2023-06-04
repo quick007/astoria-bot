@@ -1,1 +1,1 @@
-deno run --allow-read --allow-net --allow-env --allow-run --import-map=imports.json  mod.ts 
+deno run -A --import-map=imports.json --unstable  mod.ts 
