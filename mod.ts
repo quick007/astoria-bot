@@ -1,6 +1,5 @@
 import {
   ApplicationCommandInteraction,
-  ButtonStyle,
   Client,
   Embed,
   event,
@@ -11,20 +10,23 @@ import {
   MessageComponentType,
   slash,
   MessageComponentData,
-  EmbedField
 } from "harmony";
-import "env";
 import { commands } from "./objects/cmds.ts";
-import * as db from "./lib/mongo.ts";
 import { sentBy } from "./lib/embed.ts";
-import { timeToUTCMidnight, cardArrayToWords, cardsToWords } from "./lib/misc.ts";
+import {
+  timeToUTCMidnight,
+  cardArrayToWords,
+  cardsToWords,
+} from "./lib/misc.ts";
+import { findUser, doDaily, changeBal, BalanceMutationType } from "./lib/db.ts";
+import "https://deno.land/std@0.190.0/dotenv/load.ts";
 
 class EcoBot extends Client {
   @event()
   async ready() {
-    await console.log("Ready!");
-    this.interactions.commands
-      .bulkEdit(commands, "610564824807636993")
+    await console.log("Ready! Running bot as", bot.user!.tag);
+        this.interactions.commands
+      .bulkEdit(commands, "916006382594064385")
       .then(() => console.log("Commands created!"));
   }
 
@@ -32,35 +34,37 @@ class EcoBot extends Client {
   async interactionCreate(d: Interaction) {
     if (!isMessageComponentInteraction(d)) return;
     //if (d.guild == undefined || d.channel == undefined) return;
-		//if (d.message.author.id != this.client.user!.id) return;
-    
-        await d.reply({
-          embeds: [
-            new Embed({
-              title: "Opening " + cardsToWords(parseInt(d.customID.toLowerCase()))  + "..."
-            }),
-            new Embed({
-              image: {
-                url: "https://tenor.com/view/whats-in-the-box-box-wondering-unpack-open-gif-16055318"
-              }
-            }).setAuthor("Give it a second!"),
-          ]
-        })
+    //if (d.message.author.id != this.client.user!.id) return;
 
-        setTimeout(() => {
-          d.editResponse({
-            embeds: [
-              new Embed({
-                title: "Opened Card!"
-              }),
-              new Embed({
-                title: "Here's what you got:",
-                description: "100000P\n One Raffle Entry"
-              }),
-            ]
-          })
-        }, 2000)
-    
+    await d.reply({
+      embeds: [
+        new Embed({
+          title:
+            "Opening " +
+            cardsToWords(parseInt(d.customID.toLowerCase())) +
+            "...",
+        }),
+        new Embed({
+          image: {
+            url: "https://tenor.com/view/whats-in-the-box-box-wondering-unpack-open-gif-16055318",
+          },
+        }).setAuthor("Give it a second!"),
+      ],
+    });
+
+    setTimeout(() => {
+      d.editResponse({
+        embeds: [
+          new Embed({
+            title: "Opened Card!",
+          }),
+          new Embed({
+            title: "Here's what you got:",
+            description: "100000P\n One Raffle Entry",
+          }),
+        ],
+      });
+    }, 2000);
   }
 
   @slash()
@@ -81,20 +85,20 @@ class EcoBot extends Client {
   }
 
   @slash()
-  async points(d: ApplicationCommandInteraction): Promise<void> {
+  async balance(d: ApplicationCommandInteraction): Promise<void> {
     const user = d.option<InteractionUser>("user") || undefined; //User from second part of the cmd
-    const points =
+    const balance =
       user != undefined
-        ? (await db.findUser(user.id)).bal
-        : (await db.findUser(d.user.id)).bal;
+        ? (await findUser(user.id)).bal
+        : (await findUser(d.user.id)).bal;
     await d.reply({
       //ephemeral: true,
       embeds: [
         new Embed({
-          title: "Points 🔢",
+          title: "Balance 💰",
           description:
-            (user == undefined ? "You have " : user.mention + " has ") +
-            points +
+            (user == undefined ? "You have " : user.mention + " has ") + "$" +
+            balance +
             ".",
         }).setColor("#E7D27C"),
       ],
@@ -106,8 +110,8 @@ class EcoBot extends Client {
     const target = d.option<InteractionUser>("user") || undefined;
     const profile =
       target == undefined
-        ? await db.findUser(d.user.id)
-        : await db.findUser(target.id);
+        ? await findUser(d.user.id)
+        : await findUser(target.id);
     await d.reply({
       embeds: [
         new Embed({
@@ -116,7 +120,7 @@ class EcoBot extends Client {
           } Profile`,
           fields: [
             {
-              name: "Points",
+              name: "Balance",
               value: profile.bal.toString(),
             },
             {
@@ -141,21 +145,25 @@ class EcoBot extends Client {
 
   @slash()
   async daily(d: ApplicationCommandInteraction): Promise<void> {
-    const daily = await db.doDaily(d.member!.id, false);
-    //console.log(await d.member!.roles.get("955596614288937000"))
+    const daily = await doDaily(d.member!.id, (await d.member?.roles.resolve("916045092840681592") )!= undefined);
     if (daily.failed == true) {
+      const midnight = new Date(Date.now()).setUTCHours(24, 0, 0, 0) - Date.now();
+      const time = (midnight / 1000)
+					.toFixed(
+						0,
+					);
       await d.reply({
         //ephemeral: true,
         embeds: [
           new Embed({
             title: "You can't do this yet!",
             description:
-              "To keep points fair for everyone, we allow people to add to their streaks at midnight UTC.",
+              "To keep our economy fair for everyone, we allow people to add to their streaks at midnight UTC.",
             fields: [
               {
                 inline: true,
                 name: "Time until next claim:",
-                value: timeToUTCMidnight().padStart(5),
+                value: `<t:${time}:R>`,
               },
             ],
             ...sentBy(d),
@@ -170,8 +178,8 @@ class EcoBot extends Client {
             title: "Daily Reward Recived!",
             fields: [
               {
-                name: "Points",
-                value: daily.points!.toString(),
+                name: "Balance",
+                value: daily.balance!.toString(),
               },
               daily.rewards && daily.rewards.length != 0
                 ? {
@@ -181,7 +189,7 @@ class EcoBot extends Client {
                 : {
                     name: "Other",
                     value:
-                      "No other rewards 😭. Active rank gets extra rewards! Learn about active rank in #channel.",
+                      "No other rewards 😭. Active rank gets extra rewards! Learn about active rank in <#916045092840681592>.",
                   },
             ],
           }).setColor("#77DD77"),
@@ -192,7 +200,7 @@ class EcoBot extends Client {
 
   @slash()
   async open(d: ApplicationCommandInteraction): Promise<void> {
-    const profile = await db.findUser(d.user.id);
+    const profile = await findUser(d.user.id);
     if (profile.cards.length == 0) {
       await d.reply({
         embeds: [
@@ -206,34 +214,37 @@ class EcoBot extends Client {
     }
     const crds: MessageComponentData[] = [];
     profile.cards.forEach((v) => {
-      const name = cardsToWords(v)
-      let output: MessageComponentData = {
+      const name = cardsToWords(v);
+      const output: MessageComponentData = {
         label: name,
-        style: ((v == 0 || v == 5) ? 2 : (v == 1 || v == 6) ? 1 : (v == 2 || v == 7) ? 3 : (v == 3 || v == 8) ? 4 : (v == 4 || v == 9) ? 1 : 2),
+        style:
+          v == 0 || v == 5
+            ? 2
+            : v == 1 || v == 6
+            ? 1
+            : v == 2 || v == 7
+            ? 3
+            : v == 3 || v == 8
+            ? 4
+            : v == 4 || v == 9
+            ? 1
+            : 2,
         type: MessageComponentType.BUTTON,
-        customID: v.toString()
-      }
-      crds.push(output)
-      // const inArr = crds.indexOf(output)
-      // if (inArr == -1) {
-      //   crds.push(output)
-      // } else {
-      //   const end = parseInt(crds[inArr].label!)
-      // }
-    })
+        customID: v.toString(),
+      };
+      crds.push(output);
+    });
     await d.reply({
       embeds: [
         new Embed({
           title: "Open Cards",
-          description: "Select a card from the menu below to open it"
+          description: "Select a card from the menu below to open it",
         }),
       ],
       components: [
         {
           type: MessageComponentType.ACTION_ROW,
-          components: [
-            ...crds
-          ],
+          components: [...crds],
         },
       ],
     });
@@ -243,10 +254,11 @@ class EcoBot extends Client {
   async admin(d: ApplicationCommandInteraction): Promise<void> {
     const user = d.option<InteractionUser>("user");
     const amount = d.option<number>("amount");
-    if (d.member && d.member.permissions.has("MANAGE_GUILD")) {
+    if (d.member && d.member.permissions.has("MANAGE_GUILD", true)) {
       switch (d.subCommand) {
         case "setbal":
-          if (amount < 1000000000 && db.changeBal(amount, user.id, "set")) {
+          if (amount < 1000000000) {
+            await changeBal(user.id, amount, BalanceMutationType.ADD);
             await d.reply({
               //ephemeral: true,
               embeds: [
@@ -273,10 +285,9 @@ class EcoBot extends Client {
         case "addbal":
           if (
             d.member &&
-            d.member.permissions.has("MANAGE_GUILD") &&
-            amount < 1000000000 &&
-            db.changeBal(amount, user.id, "add")
+            amount < 1000000000
           ) {
+            await changeBal(user.id, amount, BalanceMutationType.ADD);
             await d.reply({
               //ephemeral: true,
               embeds: [
@@ -302,10 +313,9 @@ class EcoBot extends Client {
         case "subtractbal":
           if (
             d.member &&
-            d.member.permissions.has("MANAGE_GUILD") &&
-            amount < 1000000000 &&
-            db.changeBal(amount, user.id, "subtract")
+            amount < 1000000000
           ) {
+            await changeBal(user.id, amount, BalanceMutationType.SUBTRACT);
             await d.reply({
               //ephemeral: true,
               embeds: [
@@ -342,7 +352,7 @@ class EcoBot extends Client {
   }
 }
 
-const bot = new EcoBot();
+const bot = new EcoBot({ clientProperties: {browser: "Discord iOS"}});
 
 /*bot.on('ready', () => {
     console.log('Ready!')

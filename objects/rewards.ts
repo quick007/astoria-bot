@@ -1,9 +1,4 @@
-interface RewardPartial {
-	points: number,
-	cards?: number[],
-	activeCards?: number[],
-	day: number //technically unnded, nice for management
-}
+
 
 enum Card {
 	Common = 0,
@@ -23,22 +18,27 @@ enum CardPack {
 
 export const rewards: RewardPartial[] = [
 	{
-		points: 10,
-		cards: [Card.Common],
-		activeCards: [CardPack.Common],
+		balance: 10,
+		activeCards: [Card.Common],
 		day: 0
 	},
 	{
-		points: 20,
-		cards: [],
+		balance: 20,
+		cards: [Card.Common],
+		activeCards: [Card.Rare],
 		day: 1
 	},
 	{
-		points: 100000,
-		cards: [],
-		day: 2
+		balance: 40,
+		cards: [CardPack.Legendary],
+		activeCards: [Card.Mythic],
+		day: 3
 	},
 ]
 
-
-
+interface RewardPartial {
+	balance: number,
+	cards?: number[],
+	activeCards?: number[],
+	day: number //technically unnded, nice for management
+}

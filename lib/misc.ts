@@ -47,7 +47,7 @@ export function cardsToWords(id: number): string {
 }
 
 export function cardArrayToWords(ids: number[]): string[] {
-  let r: string[] = [];
+  const r: string[] = [];
   ids.forEach((v) => {
     r.push(cardsToWords(v));
   });

@@ -15,11 +15,11 @@ export const commands: SlashCommandPartial[] = [
 	},
 	{
 		name: "admin",
-		description: "See/change points",
+		description: "See/change balance",
 		options: [
 			{
 				name: "setbal",
-				description: "Set the value of the target user's points",
+				description: "Set the value of the target user's balance",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
@@ -30,7 +30,7 @@ export const commands: SlashCommandPartial[] = [
 					},
 					{
 						name: "amount",
-						description: "Amount of points you want to add",
+						description: "Amount of balance you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -38,7 +38,7 @@ export const commands: SlashCommandPartial[] = [
 			},
 			{
 				name: "addbal",
-				description: "Add money from the target user's points",
+				description: "Add money from the target user's balance",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
@@ -49,7 +49,7 @@ export const commands: SlashCommandPartial[] = [
 					},
 					{
 						name: "amount",
-						description: "Amount of points you want to add",
+						description: "Amount of balance you want to add",
 						type: SlashCommandOptionType.INTEGER,
 						required: true
 					}
@@ -57,7 +57,7 @@ export const commands: SlashCommandPartial[] = [
 			},
 			{
 				name: "subtractbal",
-				description: "Subtract money from the target user's points",
+				description: "Subtract money from the target user's balance",
 				type: SlashCommandOptionType.SUB_COMMAND,
 				options: [
 					{
@@ -76,23 +76,23 @@ export const commands: SlashCommandPartial[] = [
 		]
 	},
 	{
-		name: "points",
-		description: "Get the points of another user",
+		name: "balance",
+		description: "Get the balance of another user",
 		options: [
 			{
 				name: "user",
-				description: "User you want to get the points of",
+				description: "User you want to get the balance of",
 				type: SlashCommandOptionType.USER
 			}
 		]
 	},
 	{
 		name: "daily",
-		description: "Get your daily reward! DOUBLE points with Active rank!"
+		description: "Get your daily reward! DOUBLE balance with Active rank!"
 	},
 	{
 		name: "profile",
-		description: "View your inventory and points", 
+		description: "View your inventory and balance", 
 		options: [
 			{
 				name: "user",
