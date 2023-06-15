@@ -3,9 +3,11 @@ function msToHMS(ms: number) {
   const m = ((ms % 3.6e6) / 6e4) | 0;
   const s = ((ms % 6e4) / 1e3) | 0;
   const ss = ms % 1e3;
-  return `${h}:${("" + m).padStart(2, "0")}:${("" + s).padStart(2, "0")}.${(
-    "" + ss
-  ).padStart(3, "0")}`;
+  return `${h}:${("" + m).padStart(2, "0")}:${("" + s).padStart(2, "0")}.${
+    (
+      "" + ss
+    ).padStart(3, "0")
+  }`;
 }
 
 // Return time to UTC midnight as H:mm:ss.sss

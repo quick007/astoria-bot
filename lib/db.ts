@@ -1,5 +1,5 @@
 import { rewards } from "../objects/rewards.ts";
-import { UserSchema, BalanceMutationType } from "./db.types.ts";
+import { BalanceMutationType, UserSchema } from "./db.types.ts";
 
 export { BalanceMutationType };
 
@@ -40,15 +40,14 @@ export const findUser = async (discordID: string) => {
 export const changeBal = async (
   discordID: string,
   bal: number,
-  mutationType: BalanceMutationType
+  mutationType: BalanceMutationType,
 ) => {
   const user = await findUser(discordID);
-  const newBal =
-    mutationType == "set"
-      ? bal
-      : mutationType == "add"
-      ? user.bal + bal
-      : user.bal - bal;
+  const newBal = mutationType == "set"
+    ? bal
+    : mutationType == "add"
+    ? user.bal + bal
+    : user.bal - bal;
 
   await db.set(["users", discordID], {
     ...user,
@@ -58,7 +57,7 @@ export const changeBal = async (
 
 export const doDaily: (
   discordID: string,
-  active: boolean
+  active: boolean,
 ) => Promise<{
   rewards?: number[];
   days?: number;
@@ -74,7 +73,7 @@ export const doDaily: (
     const multiplier = active ? 2 : 1; //will flesh out later
     const r = rewards[user.streak];
     await db.set(["users", discordID], {
-		...user,
+      ...user,
       streak: user.streak + 1,
       dateDrawn: new Date().getUTCDate(),
       bal: user.bal + r.balance * multiplier,

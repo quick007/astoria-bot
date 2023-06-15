@@ -1,8 +1,9 @@
 {
-	"imports": {
-		"harmony": "./imports/harmony.ts",
-		"sqlite": "./imports/sqlite.ts",
-		"env": "./imports/env.ts",
-		"mongo": "./imports/mongo.ts"
-	}
+  "imports": {
+    "harmony": "./imports/harmony.ts",
+    "sqlite": "./imports/sqlite.ts",
+    "env": "./imports/env.ts",
+    "mongo": "./imports/mongo.ts",
+    "harmony-deploy": "./imports/deploy.ts"
+  }
 }

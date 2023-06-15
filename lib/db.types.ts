@@ -7,7 +7,7 @@ export interface UserSchema {
 }
 
 export enum BalanceMutationType {
-  ADD = 'add',
-  SUBTRACT = 'subtract',
-  SET = 'set',
+  ADD = "add",
+  SUBTRACT = "subtract",
+  SET = "set",
 }
