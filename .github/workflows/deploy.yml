@@ -21,6 +21,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "difficult-sparrow-55"
+          project: "astoria"
           entrypoint: "mod.ts" # 📝 Update the entrypoint
           import-map: imports.json
