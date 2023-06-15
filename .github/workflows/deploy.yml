@@ -22,6 +22,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "difficult-sparrow-55"
-          entrypoint: "mod.js" # 📝 Update the entrypoint
-          root: "."
+          entrypoint: "mod.ts" # 📝 Update the entrypoint
           import-map: imports.json
