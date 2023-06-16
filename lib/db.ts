@@ -3,7 +3,7 @@ import { BalanceMutationType, UserSchema } from "./db.types.ts";
 
 export { BalanceMutationType };
 
-export const db = await Deno.openKv("./kv.db");
+export const db = await Deno.openKv();
 
 export const newUser = async (discordID: string, bal: number) => {
   await db.set(["users", discordID], {
